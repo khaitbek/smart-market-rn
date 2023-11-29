@@ -2,6 +2,7 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 import type { AppRouter } from "./src/root";
 
+export * from "./src/api";
 export { appRouter, type AppRouter } from "./src/root";
 export { createTRPCContext } from "./src/trpc";
 

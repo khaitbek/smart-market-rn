@@ -7,6 +7,9 @@ let _tailwindConfig = null;
  * Transpiles tailwind.config.ts for babel
  * Fix until nativewind babel plugin supports tailwind.config.ts files
  */
+
+process.env.TAMAGUI_TARGET = "native";
+
 function lazyLoadConfig() {
   return (
     _tailwindConfig ?? loadConfig(path.join(__dirname, "tailwind.config.ts"))
@@ -27,6 +30,26 @@ module.exports = function (api) {
         },
       ],
       require.resolve("expo-router/babel"),
+      [
+        "transform-inline-environment-variables",
+        // NOTE: include is optional, you can leave this part out
+        {
+          include: ["TAMAGUI_TARGET", "EXPO_ROUTER_APP_ROOT"],
+        },
+      ],
+      [
+        "@tamagui/babel-plugin",
+        {
+          components: [
+            "tamagui",
+            "@tamagui-extras/form",
+            "@tamagui/lucide-icons",
+          ],
+          config: "./tamagui.config.ts",
+          logTimings: true,
+        },
+      ],
+      "react-native-reanimated/plugin",
     ],
   };
 };

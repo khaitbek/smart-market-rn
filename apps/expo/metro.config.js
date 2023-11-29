@@ -6,7 +6,9 @@ const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, "../..");
 
 // Create the default Metro config
-const config = getDefaultConfig(projectRoot);
+const config = getDefaultConfig(projectRoot, {
+  isCSSEnabled: true,
+});
 
 if (config.resolver) {
   // 1. Watch all files within the monorepo
@@ -19,5 +21,7 @@ if (config.resolver) {
   // 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
   config.resolver.disableHierarchicalLookup = true;
 }
+
+config.resolver.sourceExts.push("mjs");
 
 module.exports = config;

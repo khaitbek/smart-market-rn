@@ -1,9 +1,9 @@
 import type { ExpoConfig } from "@expo/config";
 
 const defineConfig = (): ExpoConfig => ({
-  name: "expo",
-  slug: "expo",
-  scheme: "expo",
+  name: "com.smartmarket.app",
+  slug: "smart-market",
+  scheme: "com.smartmarket.app",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -11,21 +11,24 @@ const defineConfig = (): ExpoConfig => ({
   splash: {
     image: "./assets/icon.png",
     resizeMode: "contain",
-    backgroundColor: "#1F104A",
   },
   updates: {
     fallbackToCacheTimeout: 0,
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "your.bundle.identifier",
+    bundleIdentifier: "com.smartmarket.app",
     supportsTablet: true,
   },
   android: {
-    package: "your.bundle.identifier",
+    package: "com.smartmarket.app",
     adaptiveIcon: {
       foregroundImage: "./assets/icon.png",
-      backgroundColor: "#1F104A",
+    },
+  },
+  extra: {
+    eas: {
+      projectId: "6764ff05-8867-4e92-9595-cc0eac586ebb",
     },
   },
   // extra: {
