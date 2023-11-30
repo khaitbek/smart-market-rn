@@ -15,6 +15,8 @@ export const Header: FC<ViewProps> = () => {
         space
         justifyContent="space-between"
         alignItems="center"
+        theme="primary"
+        backgroundColor="$background"
       >
         <HeaderSearchInput />
       </XStack>

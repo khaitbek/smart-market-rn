@@ -65,3 +65,7 @@ interface ProductByCategory extends BaseResponse {
     products: Product[];
   };
 }
+
+interface FavoriteProducts extends BaseResponse {
+  data: Product[];
+}

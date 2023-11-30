@@ -71,7 +71,7 @@ export function MainPageTabIcon(props: SvgProps) {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1zM2 5a3 3 0 013-3h14a3 3 0 013 3v14a3 3 0 01-3 3H5a3 3 0 01-3-3V5zm10 7c-2.761 0-5-2.686-5-6h2c0 2.566 1.67 4 3 4s3-1.434 3-4h2c0 3.314-2.239 6-5 6z"
-        fill="#AFB6C0"
+        fill="currentColor"
       />
     </Svg>
   );
@@ -82,7 +82,7 @@ export function CategoryPageTabIcon(props: SvgProps) {
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
       <Path
         d="M16 6a2 2 0 104 0 2 2 0 00-4 0zM16 12a2 2 0 104 0 2 2 0 00-4 0zM18 20a2 2 0 110-4 2 2 0 010 4zM10 6a2 2 0 104 0 2 2 0 00-4 0zM12 14a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 104 0 2 2 0 00-4 0zM6 8a2 2 0 110-4 2 2 0 010 4zM4 12a2 2 0 104 0 2 2 0 00-4 0zM6 20a2 2 0 110-4 2 2 0 010 4z"
-        fill="#AFB6C0"
+        fill="currentColor"
       />
     </Svg>
   );
@@ -93,7 +93,7 @@ export function FavoritesPageTabIcon(props: SvgProps) {
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
       <Path
         d="M16.5 2.825c-1.74 0-3.41.81-4.5 2.09-1.09-1.28-2.76-2.09-4.5-2.09-3.08 0-5.5 2.42-5.5 5.5 0 3.78 3.4 6.86 8.55 11.54l1.45 1.31 1.45-1.32c5.15-4.67 8.55-7.75 8.55-11.53 0-3.08-2.42-5.5-5.5-5.5zm-4.4 15.55l-.1.1-.1-.1C7.14 14.065 4 11.215 4 8.325c0-2 1.5-3.5 3.5-3.5 1.54 0 3.04.99 3.57 2.36h1.87c.52-1.37 2.02-2.36 3.56-2.36 2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"
-        fill="#AFB6C0"
+        fill="currentColor"
       />
     </Svg>
   );
@@ -106,11 +106,11 @@ export function CartPageTabIcon(props: SvgProps) {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M5.792 2H1v2h3.218l2.77 12.678H7V17h13v-.248l2.193-9.661L22.531 6H6.655l-.57-2.611L5.792 2zm14.195 6H7.092l1.529 7h9.777l1.589-7z"
-        fill="#095AE3"
+        fill="currentColor"
       />
       <Path
         d="M10 22a2 2 0 100-4 2 2 0 000 4zM19 20a2 2 0 11-4 0 2 2 0 014 0z"
-        fill="#095AE3"
+        fill="currentColor"
       />
     </Svg>
   );
@@ -118,16 +118,16 @@ export function CartPageTabIcon(props: SvgProps) {
 
 export function AccountPageTabIcon(props: SvgProps) {
   return (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" {...props}>
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="#000" {...props}>
       <Path
         d="M15 14a1 1 0 110-2 1 1 0 010 2zM8 13a1 1 0 102 0 1 1 0 00-2 0z"
         fill="#AFB6C0"
+        {...props}
       />
       <Path
-        fillRule="evenodd"
-        clipRule="evenodd"
         d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2A8 8 0 014.366 9.6c.835.226 1.713.346 2.619.346a9.996 9.996 0 008.692-5.053A8 8 0 0112 20z"
         fill="#AFB6C0"
+        {...props}
       />
     </Svg>
   );

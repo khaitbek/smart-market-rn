@@ -14,7 +14,9 @@ const interFont = createFont({
     true: 14,
     // ...
   },
-  lineHeight: {},
+  lineHeight: {
+    true: 14,
+  },
   weight: {
     700: 700,
     true: 400,
@@ -29,7 +31,6 @@ const interFont = createFont({
     600: { normal: "InterSemiBold" },
     700: { normal: "InterBold" },
     800: { normal: "InterExtraBold" },
-    true: "Inter",
   },
 });
 const config = createTamagui({
@@ -53,8 +54,7 @@ const config = createTamagui({
       stiffness: 60,
     },
   }),
-
-  defaultTheme: "light",
+  defaultTheme: "primary",
 
   shouldAddPrefersColorThemes: true,
 
@@ -68,8 +68,17 @@ const config = createTamagui({
   themes: {
     ...themes,
     primary: {
-      color: "#FFF",
+      background: "#FFF",
+      color: "#000",
+      strongBg: "#F4F5F8",
+    },
+    sky: {
       background: "#095AE3",
+      color: "#FFF",
+    },
+    skyOutlined: {
+      color: "#095AE3",
+      background: "#FFF",
     },
   },
 

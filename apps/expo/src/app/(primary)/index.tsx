@@ -27,9 +27,9 @@ const Home = () => {
       <MyStack>
         <Container>
           <YStack gap="$8">
+            <MainPageCategories />
             <CheapestProducts />
             <PopularProducts />
-            <MainPageCategories />
             <LatestProducts />
           </YStack>
         </Container>

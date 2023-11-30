@@ -1,17 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  Card,
-  CardHeader,
-  H2,
-  Image,
-  Paragraph,
-  XStack,
-  YStack,
-} from "tamagui";
+import { Card, CardHeader, Image, Paragraph, XStack, YStack } from "tamagui";
 
 import { getCategories } from "~/utils/api-utils";
 import { createImgUrl } from "~/utils/image";
 import { CategoryLoader } from "../loaders/category";
+import { SectionTitle } from "../ui/section-title";
 
 export function MainPageCategories() {
   const { data, isLoading } = useQuery({
@@ -24,7 +17,7 @@ export function MainPageCategories() {
   return (
     <>
       <YStack gap="$2">
-        <H2 fontWeight="700">Main categories</H2>
+        <SectionTitle>Main categories</SectionTitle>
         <XStack flexWrap="wrap">
           {isLoading && <CategoryLoader />}
           {data?.map((category) => (
@@ -44,13 +37,15 @@ export function MainPageCategories() {
                     height: 53,
                     cache: "force-cache",
                   }}
-                  className="object-cover"
-                  aspectRatio={1}
+                  marginHorizontal="25%"
+                  resizeMode="contain"
                   style={{
                     objectFit: "contain",
                   }}
                 />
-                <Paragraph fontSize={13}>{category.name}</Paragraph>
+                <Paragraph fontWeight="400" textAlign="center" fontSize={13}>
+                  {category.name}
+                </Paragraph>
               </CardHeader>
             </Card>
           ))}

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuthStore } from "~/store/auth-store";
 import type { Locale } from "~/store/lang-store";
 import type {
+  FavoriteProducts,
   Product,
   ProductByCategory,
   ProductGetResponse,
@@ -215,13 +216,18 @@ export async function getSellers({
 }
 
 // cart
-interface GetCartProducts {
+interface GetProductsByMultipleIdsProps {
   ids: string;
 }
-export async function getCartProducts({ ids }: GetCartProducts) {
-  return (
-    await publicApiClientV2.post("/v2/products_by_ids", {
-      ids,
+export async function getProductsByMultipleIds({
+  ids,
+}: GetProductsByMultipleIdsProps) {
+  const data = (
+    await publicApiClientV2.get("/products_by_ids", {
+      params: {
+        ids,
+      },
     })
-  ).data;
+  ).data as FavoriteProducts;
+  return data;
 }

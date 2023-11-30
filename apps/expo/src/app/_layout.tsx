@@ -33,7 +33,7 @@ const RootLayout = () => {
     <RQProvider>
       <TamaguiProvider config={config}>
         <Suspense fallback={<Text>Loading...</Text>}>
-          <Theme name="light">
+          <Theme name="primary">
             <ToastProvider>
               <MySafeAreaView>
                 <Stack
