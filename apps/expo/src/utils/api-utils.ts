@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import axios from "axios";
 
@@ -10,8 +9,12 @@ import type {
   ProductByCategory,
   ProductGetResponse,
   SingleProduct,
+  SingleProductDetails,
 } from "~/types/product";
 
+export const publicApiClientV3 = axios.create({
+  baseURL: "https://api.kh.smart-market.uz/api/v3",
+});
 export const publicApiClientV2 = axios.create({
   baseURL: "https://api.kh.smart-market.uz/api/v2",
 });
@@ -47,25 +50,25 @@ export async function getUserInfo(token: string) {
 
 export async function getPopularProducts(
   max: number,
-  code = 12,
+  code = 0,
 ): Promise<ProductGetResponse> {
   return (
-    await publicApiClientV2.get("/home/product/max", {
+    await publicApiClientV3.get("/mobile/products/popular", {
       params: {
-        max,
-        code,
+        page_size: max,
+        unit_id: code,
       },
     })
   ).data.data as ProductGetResponse;
 }
 export async function getLatestProducts(
-  size = 10,
+  size = 5,
   code = 4,
 ): Promise<ProductGetResponse> {
   return (
     await publicApiClientV2.get("/home/product/new", {
       params: {
-        size,
+        page_size: size,
         code,
       },
     })
@@ -97,13 +100,13 @@ export async function getSingleProduct({
   ).data as unknown as SingleProduct;
 }
 export async function getCheapestProducts(
-  size = 10,
+  size = 5,
   code = 4,
 ): Promise<ProductGetResponse> {
   return (
-    await publicApiClientV2.get("/home/product/cheap", {
+    await publicApiClientV3.get("/home/product/cheap", {
       params: {
-        size,
+        page_size: size,
         code,
       },
     })
@@ -123,7 +126,7 @@ interface GetProductsByCategoryProps {
 export async function getProductsByCategory({
   category_id,
   page = 1,
-  page_size = 10,
+  page_size = 5,
   sorting = "popular",
   order = "asc",
   all_regions = 1,
@@ -143,6 +146,11 @@ export async function getProductsByCategory({
     })
   ).data as ProductByCategory;
 }
+
+interface SearchProductsProps extends GetProductsByCategoryProps {
+  query: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function debounce(cb: Function, delay = 1000) {
   let timer: NodeJS.Timeout;
@@ -154,13 +162,26 @@ export function debounce(cb: Function, delay = 1000) {
   };
 }
 export const debounceSearch = debounce(searchProducts);
-export async function searchProducts(query: string) {
-  if (!query) return (await getCheapestProducts()).products;
-  const products = await getCheapestProducts(50);
-  const filteredProducts = products.products.filter((p) => {
-    const regex = new RegExp(query, "i");
-    return regex.test(p.name);
+export async function searchProducts({
+  query = "",
+  ...params
+}: SearchProductsProps) {
+  if (!params.category_id) return [];
+  const products = await getProductsByCategory({
+    ...params,
   });
+  const filteredProducts = products.data.products.filter((p) => {
+    const regex = new RegExp(query, "i");
+    return regex.test((p as unknown as SingleProductDetails).name);
+  });
+  return filteredProducts;
+}
+export async function deepSearchProducts({ query }: { query: string }) {
+  const products = await getCheapestProducts(50);
+  const regexPattern = new RegExp(query, "i");
+  const filteredProducts = products.products.filter((p) =>
+    regexPattern.test((p as unknown as SingleProduct["data"]).name),
+  );
   return filteredProducts;
 }
 export async function getCategories(lang: Locale) {
@@ -171,6 +192,55 @@ export async function getCategories(lang: Locale) {
       },
     })
   ).data.data as Category[];
+}
+
+interface GetCatalogProps {
+  code?: number;
+  lang: "en" | "khmer";
+}
+
+interface GetSingleCatalogProps extends GetCatalogProps {
+  id: Category["id"];
+}
+
+export async function getCatalogs({ lang, code }: GetCatalogProps) {
+  return (
+    await publicApiClientV1.get("/sync/frontend/catalogs", {
+      params: {
+        lang,
+        code,
+      },
+    })
+  ).data as Catalogs;
+}
+export async function getSingleCatalog({ lang, id }: GetSingleCatalogProps) {
+  const catalogs = await getCatalogs({
+    lang,
+  });
+  const catalog = catalogs.data.categories.find((c) => c.id === id);
+  const subCatalogs = catalogs.data.categories.filter(
+    (c) => c.parent_id === catalog?.parent_id,
+  );
+  return {
+    catalog,
+    subCatalogs,
+  };
+}
+
+interface SearchCatalogProps {
+  lang: Locale;
+  query: string;
+}
+
+export async function searchCatalogs({ lang, query }: SearchCatalogProps) {
+  const categories = await getCatalogs({
+    lang,
+  });
+  const queryRegex = new RegExp(query, "i");
+  const filteredCategories = categories.data.categories.filter((c) =>
+    queryRegex.test(c.name),
+  );
+  return filteredCategories;
 }
 
 // regions

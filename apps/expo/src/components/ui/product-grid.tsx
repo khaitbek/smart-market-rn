@@ -1,15 +1,15 @@
+import ErrorBoundary from "react-native-error-boundary";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import Fa from "@expo/vector-icons/FontAwesome";
-import { Heart } from "@tamagui/lucide-icons";
-import { useQueryClient } from "@tanstack/react-query";
-import type { CardProps, XStackProps } from "tamagui";
+import type { CardProps, XStackProps, YStackProps } from "tamagui";
 import {
   Button,
   Card,
   CardFooter,
   CardHeader,
   H2,
+  H3,
   Image,
   Paragraph,
   Text,
@@ -17,13 +17,15 @@ import {
   YStack,
 } from "tamagui";
 
-import { useCartStore } from "~/store/cart-store";
-import { useFavoriteStore } from "~/store/favorites-store";
-import type { Product } from "~/types/product";
+import type { PopularProduct, Product, SingleProduct } from "~/types/product";
 import { cn } from "~/utils/cn";
 import { createImgUrl } from "~/utils/image";
 import { ProductLoader } from "../loaders/product";
-import { PrimaryButton } from "./primary-btn";
+import { navigationContainerRef } from "../routing/navigation-container";
+import CartButton from "./cart-button";
+import { AccountPageIcons } from "./icons";
+import { LikeButton } from "./like-button";
+import { Separator } from "./separator";
 
 interface ProductGridProps {
   title?: string;
@@ -50,54 +52,50 @@ export function ProductGrid({
   const router = useRouter();
   if (isLoading) return <ProductLoader childCount={10} />;
   return (
-    <YStack gap="$3">
-      <XStack
-        alignItems="center"
-        justifyContent="space-between"
-        gap="$2"
-        {...headerProps}
-      >
-        {!!title && <H2 fontWeight="700">{title}</H2>}
-        {!!seeAllButtonPath && (
-          <Button
-            onPress={() => router.push("/search/")}
-            color="#979797"
-            unstyled
-          >
-            See all
-          </Button>
-        )}
-      </XStack>
-      <XStack flexWrap="wrap">
-        {products?.map((product, index, array) => {
-          return (
-            <ProductCard
-              key={product.id}
-              index={index}
-              products={array}
-              product={product}
-              filterProduct={filter}
-            />
-          );
-        })}
-      </XStack>
-    </YStack>
+    <ErrorBoundary
+      FallbackComponent={() => {
+        navigationContainerRef.navigate("Home" as never);
+        return null;
+      }}
+    >
+      <YStack gap="$3">
+        <XStack
+          alignItems="center"
+          justifyContent="space-between"
+          gap="$2"
+          {...headerProps}
+        >
+          {!!title && <H2 fontWeight="700">{title}</H2>}
+          {!!seeAllButtonPath && (
+            <Button
+              onPress={() => router.push("/search/")}
+              color="#979797"
+              unstyled
+            >
+              See all
+            </Button>
+          )}
+        </XStack>
+        <XStack flexWrap="wrap">
+          {products?.map((product, index, array) => {
+            return (
+              <ProductCard
+                key={product.id}
+                index={index}
+                products={array}
+                product={product}
+                filterProduct={filter}
+              />
+            );
+          })}
+        </XStack>
+      </YStack>
+    </ErrorBoundary>
   );
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const { push } = useRouter();
-  const queryClient = useQueryClient();
-  const { products, addToCart, removeFromCart } = useCartStore();
-  const {
-    products: favorites,
-    addToFavorites,
-    removeFromFavorites,
-  } = useFavoriteStore();
-  const doesProductExistInCart =
-    products.find((p) => p.id === product.id) != null;
-  const isFavoriteProduct = favorites.includes(product.id);
-
   return (
     <Card
       width="50%"
@@ -122,8 +120,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
             <CardHeader className="relative">
               <Image
                 source={{
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                  uri: createImgUrl(product.photos[0].id),
+                  uri:
+                    product?.photos?.find?.((p) => p.is_main)?.id ??
+                    createImgUrl(
+                      product?.photos?.[0]?.id ??
+                        (product as PopularProduct).main_photo,
+                    ),
                   width: 156,
                   height: 130,
                 }}
@@ -133,28 +135,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 backgroundColor="$strongBg"
                 className="max-w-full rounded-xl"
               />
-              <Button
-                width={24}
-                height={24}
-                onPress={async () => {
-                  if (isFavoriteProduct) removeFromFavorites(product.id);
-                  else addToFavorites(product.id);
-                  console.log("Invalidating!");
-                  await queryClient.invalidateQueries({
-                    queryKey: ["favorite", "products"],
-                  });
-                }}
-                outlineColor="transparent"
-                unstyled
-                className="absolute right-3 top-2"
-              >
-                <Heart
-                  width={24}
-                  height={24}
-                  color="blue"
-                  fill={isFavoriteProduct ? "blue" : "white"}
-                />
-              </Button>
+              <LikeButton product={product} />
             </CardHeader>
             <YStack padding={14} gap="$3">
               <Paragraph
@@ -183,32 +164,59 @@ export function ProductCard({ product, className }: ProductCardProps) {
             </YStack>
           </YStack>
           <CardFooter paddingHorizontal={14}>
-            {doesProductExistInCart ? (
-              <Button
-                fontSize={13}
-                width="100%"
-                backgroundColor="crimson"
-                color="white"
-                icon={<Fa size={16} name="shopping-cart" />}
-                className="font-bold"
-                onPress={() => removeFromCart(product.id)}
-              >
-                Remove
-              </Button>
-            ) : (
-              <PrimaryButton
-                fontSize={13}
-                width="100%"
-                icon={<Fa size={16} name="shopping-cart" />}
-                className="font-bold"
-                onPress={() => addToCart(product.id)}
-              >
-                Add to card
-              </PrimaryButton>
-            )}
+            <CartButton product={product} />
           </CardFooter>
         </YStack>
       </Animated.View>
     </Card>
+  );
+}
+
+interface SearchProductTitleProps {
+  id: Product["id"];
+  name: Product["name"];
+}
+interface SearchProductListProps extends YStackProps {
+  products: SingleProduct[];
+}
+
+export function SearchProductTitle({ id, name }: SearchProductTitleProps) {
+  return (
+    <Link
+      href={{
+        pathname: "/(product)/product/[id]",
+        params: {
+          id,
+        },
+      }}
+    >
+      <XStack
+        paddingVertical={16}
+        justifyContent="space-between"
+        alignItems="center"
+        gap="$2"
+      >
+        <H3 numberOfLines={1}>{name}</H3>
+        {AccountPageIcons.NEXT_PAGE({})}
+      </XStack>
+    </Link>
+  );
+}
+
+export function SearchProductList({
+  products,
+  ...props
+}: SearchProductListProps) {
+  return (
+    <YStack separator={<Separator />} {...props}>
+      {!!products &&
+        products?.map((p) => (
+          <SearchProductTitle
+            name={(p as unknown as SingleProduct["data"]).name}
+            id={(p as unknown as SingleProduct["data"]).id}
+            key={(p as unknown as SingleProduct["data"]).id}
+          />
+        ))}
+    </YStack>
   );
 }

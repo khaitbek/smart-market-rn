@@ -27,8 +27,14 @@ export function LoginForm() {
     isSuccess,
   } = useMutation({
     mutationKey: ["login"],
+    // eslint-disable-next-line @typescript-eslint/require-await
     mutationFn: async (data: LoginFields) => {
-      console.log(data);
+      useAuthStore.setState({
+        user: {
+          ...data,
+        },
+        authorized: true,
+      });
     },
   });
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -75,20 +81,22 @@ export function LoginForm() {
               handleLogin(data);
               if (isSuccess) reset();
             })}
-            backgroundColor="blue"
-            themeInverse
+            theme="sky"
           >
             {isLoading ? <Spinner size="small" /> : "Submit"}
           </Button>
 
           <Separator />
           <Button
+            theme="light"
             disabled={!request}
             onPress={async () => {
               await promptAsync();
             }}
+            alignItems="center"
           >
-            Continue with<Text className="font-bold">Google</Text>
+            <Text>Continue with</Text>
+            <Text className="font-bold">Google</Text>
           </Button>
         </YStack>
       )}

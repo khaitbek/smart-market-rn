@@ -2,7 +2,7 @@ import type { ExpoConfig } from "@expo/config";
 
 const defineConfig = (): ExpoConfig => ({
   name: "com.smartmarket.app",
-  slug: "smart-market",
+  slug: "expo",
   scheme: "com.smartmarket.app",
   version: "1.0.0",
   orientation: "portrait",
@@ -29,6 +29,9 @@ const defineConfig = (): ExpoConfig => ({
   extra: {
     eas: {
       projectId: "6764ff05-8867-4e92-9595-cc0eac586ebb",
+      // projectId: "f06a71f2-9742-4d29-a746-26765cdeb3fc",
+      // projectId: "6764ff05-8867-4e92-9595-cc0eac586ebb",
+      // projectId: "smart-market",
     },
   },
   // extra: {

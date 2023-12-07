@@ -2,7 +2,7 @@ import { ActionLayout } from "~/components/layout/action";
 import { LoginForm } from "~/components/routing/login-form";
 import { MyStack } from "~/components/ui/my-stack";
 
-export default function LoginProvider() {
+export default function Login() {
   return (
     <MyStack>
       <ActionLayout

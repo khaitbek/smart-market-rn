@@ -1,4 +1,5 @@
-import { useRootNavigationState, useRouter } from "expo-router";
+import { useRootNavigationState } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { Button, XStack } from "tamagui";
 
 import { ActionLayout } from "~/components/layout/action";
@@ -21,23 +22,34 @@ export default function Welcome() {
 }
 
 function LanguageSelect() {
+  const navigation = useNavigation();
   const navigationState = useRootNavigationState();
-  const { push } = useRouter();
   const { setLang } = useLangStore();
   function setLangAndRedirectToLogin(lang: "en" | "khmer") {
     setLang(lang);
     if (!navigationState?.key) return;
-    push("/login/");
+    navigation.navigate("Login" as never);
   }
 
   return (
     <>
-      <Button onPress={() => setLangAndRedirectToLogin("en")} fontSize={16.0}>
+      <Button
+        theme="light"
+        textProps={{
+          lineHeight: 16.0,
+          fontSize: 16.0,
+        }}
+        onPress={() => setLangAndRedirectToLogin("en")}
+      >
         English
       </Button>
       <Button
+        theme="light"
+        textProps={{
+          lineHeight: 16.0,
+          fontSize: 16.0,
+        }}
         onPress={() => setLangAndRedirectToLogin("khmer")}
-        fontSize={16.0}
       >
         Khmer
       </Button>

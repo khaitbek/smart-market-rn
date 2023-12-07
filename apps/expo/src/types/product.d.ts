@@ -22,11 +22,13 @@ export const productSchema = z.object({
     fourth: z.string().transform((v) => Number(v)),
     fifth: z.string().transform((v) => Number(v)),
   }),
-  photos: z.array({
-    id: z.string(),
-    is_main: z.boolean(),
-    product_id: z.string(),
-  }),
+  photos: z.array(
+    z.object({
+      id: z.string(),
+      is_main: z.boolean(),
+      product_id: z.string(),
+    }),
+  ),
   seller: z.object({
     address: z.string(),
     district_id: z.string().transform((v) => Number(v)),
@@ -54,6 +56,7 @@ interface SingleProductDetails extends Product {
   technical_parameters: string;
   unit: string;
   ayear: number;
+  name: string;
 }
 interface SingleProduct extends BaseResponse {
   data: SingleProductDetails;
@@ -68,4 +71,7 @@ interface ProductByCategory extends BaseResponse {
 
 interface FavoriteProducts extends BaseResponse {
   data: Product[];
+}
+interface PopularProduct extends Product {
+  main_photo: string;
 }

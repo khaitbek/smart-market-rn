@@ -1,38 +1,37 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import type { ImageSourcePropType } from "react-native";
+import { useWindowDimensions } from "react-native";
+import HTMLToRN from "react-native-render-html";
 import { useAssets } from "expo-asset";
 import { useLocalSearchParams } from "expo-router";
-import { Star } from "@tamagui/lucide-icons";
-import { useQuery } from "@tanstack/react-query";
+import { Heart, Star } from "@tamagui/lucide-icons";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ParagraphProps } from "tamagui";
 import {
   Button,
   H2,
   Image,
   ListItem,
-  ListItemProps,
   Paragraph,
   ScrollView,
-  Separator,
   View,
   XStack,
   YGroup,
   YStack,
 } from "tamagui";
 
-import {
-  EyeIcon,
-  FavoriteIcon,
-  PhoneIcon,
-  ProductLocationIcon,
-} from "~/components/ui/icons";
+import { SingleProductLoader } from "~/components/loaders/single-product";
+import { EyeIcon, PhoneIcon, ProductLocationIcon } from "~/components/ui/icons";
+import { Separator } from "~/components/ui/separator";
 import { RelatedProducts } from "~/components/ui/similar-products";
+import { useFavoriteStore } from "~/store/favorites-store";
 import type { Product, SingleProduct } from "~/types/product";
 import { getSingleProduct } from "~/utils/api-utils";
 import { ProductImageSlider } from "./_components/product-img-slider";
 
 export default function ProductViewPage() {
-  const [assets, error] = useAssets([
+  const [assets] = useAssets([
     require("../../../../public/images/oila-kredit.png"),
   ]);
   const { id } = useLocalSearchParams();
@@ -40,7 +39,15 @@ export default function ProductViewPage() {
     queryKey: ["product", id],
     queryFn: async () => await getSingleProduct({ product_id: Number(id) }),
   });
-  if (!product) return <Paragraph>Loading...</Paragraph>;
+  const {
+    products: favorites,
+    addToFavorites,
+    removeFromFavorites,
+  } = useFavoriteStore();
+  const isFavoriteProduct = favorites.includes(+id!);
+  const queryClient = useQueryClient();
+  const { width } = useWindowDimensions();
+  if (!product) return <SingleProductLoader />;
   return (
     <ScrollView>
       <ProductImageSlider images={product?.data.photos ?? []} />
@@ -48,7 +55,7 @@ export default function ProductViewPage() {
         <ProductDetailGroup>
           <XStack justifyContent="space-between">
             <YStack flexGrow={1}>
-              <H2 fontSize={16} fontWeight="600">
+              <H2 fontSize={16} lineHeight={16} fontWeight="600">
                 {product?.data.name}
               </H2>
               <Paragraph color="#7B7D81" fontWeight="500">
@@ -56,15 +63,33 @@ export default function ProductViewPage() {
               </Paragraph>
             </YStack>
             <Button
-              backgroundColor="transparent"
-              icon={<FavoriteIcon />}
-            ></Button>
+              width={24}
+              height={24}
+              onPress={async () => {
+                if (isFavoriteProduct) removeFromFavorites(+id!);
+                else addToFavorites(+id!);
+                console.log("Invalidating!");
+                await queryClient.invalidateQueries({
+                  queryKey: ["favorite", "products"],
+                });
+              }}
+              outlineColor="transparent"
+              unstyled
+              className="absolute right-3 top-2"
+            >
+              <Heart
+                width={24}
+                height={24}
+                color="blue"
+                fill={isFavoriteProduct ? "blue" : "white"}
+              />
+            </Button>
           </XStack>
         </ProductDetailGroup>
         <ProductDetailGroup>
-          <YStack flexGrow={1}>
+          <YStack gap="$2">
             <Paragraph fontWeight="600">Price:</Paragraph>
-            {product?.data.old_price && (
+            {/* {product?.data.old_price && (
               <Paragraph
                 style={{
                   color: "#7B7D81",
@@ -73,13 +98,15 @@ export default function ProductViewPage() {
               >
                 {product?.data.old_price}
               </Paragraph>
-            )}
-            <H2 fontSize={20}>
-              {product?.data.price}{" "}
+            )} */}
+            <XStack alignItems="center" gap="$2">
+              <H2 lineHeight={20} fontSize={20}>
+                {product?.data.price}
+              </H2>
               <Paragraph fontWeight="500" color="#7B7D81">
                 UZS
               </Paragraph>
-            </H2>
+            </XStack>
           </YStack>
         </ProductDetailGroup>
         <ProductDetailGroup>
@@ -104,6 +131,30 @@ export default function ProductViewPage() {
               {product?.data.seller.address}
             </Paragraph>
           </XStack>
+        </ProductDetailGroup>
+        <ProductDetailGroup>
+          <YStack>
+            <ProductDetailGroupTitle>Description</ProductDetailGroupTitle>
+            <View>
+              <HTMLToRN
+                enableUserAgentStyles
+                defaultViewProps={{
+                  style: {
+                    padding: 0,
+                    margin: 0,
+                  },
+                }}
+                baseStyle={{
+                  whiteSpace: "normal",
+                  maxWidth: width - 50,
+                }}
+                contentWidth={100}
+                source={{
+                  html: product.data.technical_parameters,
+                }}
+              />
+            </View>
+          </YStack>
         </ProductDetailGroup>
         <ProductDetailGroup paddingVertical={0} paddingHorizontal={0}>
           <YStack width="100%">
@@ -236,9 +287,9 @@ function ProductCharacteristicsGroup({
     </XStack>
   );
 }
-function ProductDetailGroupTitle({ children }: ListItemProps) {
+function ProductDetailGroupTitle({ children, ...props }: ParagraphProps) {
   return (
-    <Paragraph fontWeight="500" color="#44475C">
+    <Paragraph fontWeight="500" color="#44475C" {...props}>
       {children}
     </Paragraph>
   );

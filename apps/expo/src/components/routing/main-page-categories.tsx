@@ -20,7 +20,7 @@ export function MainPageCategories() {
         <SectionTitle>Main categories</SectionTitle>
         <XStack flexWrap="wrap">
           {isLoading && <CategoryLoader />}
-          {data?.map((category) => (
+          {data?.slice(0, 6).map((category) => (
             <Card
               padding="$2"
               backgroundColor="transparent"

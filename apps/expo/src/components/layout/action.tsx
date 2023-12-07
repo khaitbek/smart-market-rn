@@ -15,7 +15,9 @@ export function ActionLayout({ title, subtitle, children }: ActionLayoutProps) {
       <YStack marginBottom="$5" gap="$3">
         <Logo />
         <YStack>
-          <H2 className="font-bold">{title}</H2>
+          <H2 fontSize={20} lineHeight={20} marginBottom={4}>
+            {title}
+          </H2>
           <Paragraph className="text-gray-500">{subtitle}</Paragraph>
         </YStack>
       </YStack>

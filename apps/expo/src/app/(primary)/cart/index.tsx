@@ -1,11 +1,17 @@
 import React from "react";
-import { Text, View } from "tamagui";
+import { ScrollView, Stack } from "tamagui";
+
+import { CartLatestInfo } from "./_components/cart-latest-info";
+import { CartList } from "./_components/cart-list";
 
 const CartPage = () => {
   return (
-    <View>
-      <Text>CartPage</Text>
-    </View>
+    <Stack className="h-full">
+      <ScrollView backgroundColor="$background">
+        <CartList />
+      </ScrollView>
+      <CartLatestInfo />
+    </Stack>
   );
 };
 

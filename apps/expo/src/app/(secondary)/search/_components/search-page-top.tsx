@@ -1,79 +1,66 @@
 import { useGlobalSearchParams, useRouter } from "expo-router";
 import { LmFormRhfProvider, LmInputRhf } from "@tamagui-extras/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Form, Text, useDebounce, XStack, YStack } from "tamagui";
+import { useQueryClient } from "@tanstack/react-query";
+import { Form, useDebounce, XStack } from "tamagui";
 import { z } from "zod";
 
 import { Back } from "~/components/ui/back";
-import { searchProducts } from "~/utils/api-utils";
-import { HeaderFilterComponent } from "./filter-component";
-import { HeaderSortComponent } from "./sort-component";
 
 const schema = z.object({
-  query: z.string(),
-  sortOrder: z.enum(["asc", "desc"]),
-  sortType: z.enum(["popular", "price", "comments", "rating", "sale", "new"]),
+  deep_search: z.string(),
 });
 
-type SearchPageFormFields = Pick<z.infer<typeof schema>, "query">;
+type SearchPageFormFields = Pick<z.infer<typeof schema>, "deep_search">;
 
 export function SearchPageTop() {
-  const { query } = useGlobalSearchParams();
+  const { deep_search } = useGlobalSearchParams();
   const { setParams } = useRouter();
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationKey: ["search", "product"],
-    mutationFn: async (q: string) => await searchProducts(q),
-    async onSuccess() {
-      // queryClient.setQueryData(["product", "search"], {
-      //   products: data,
-      // });
-      await queryClient.invalidateQueries({ queryKey: ["product", "search"] });
-    },
-  });
+
   const func = useDebounce(
-    (query: string) => {
-      mutate(query);
+    async (deep_search: string) => {
+      setParams({
+        deep_search: deep_search,
+      });
+      if (!deep_search) {
+        queryClient.setQueryData(["deepsearch"], {
+          catalogs: [],
+          products: [],
+        });
+        return;
+      }
+      await queryClient.invalidateQueries({ queryKey: ["deepsearch"] });
     },
     1000,
     {
       leading: false,
     },
-    [query],
+    [deep_search],
   );
   return (
-    <YStack className="px-6 py-4">
-      <Back
-        alignSelf="flex-start"
-        height="$3"
-        paddingHorizontal={8}
-        marginVertical={8}
-      />
+    <XStack padding={16}>
+      <Back />
       <LmFormRhfProvider<SearchPageFormFields>>
         {({ control, handleSubmit }) => (
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          <Form paddingBottom={12} onSubmit={handleSubmit(() => {})}>
+          <Form
+            flexGrow={1}
+            paddingBottom={12}
+            onSubmit={handleSubmit(() => ({}))}
+          >
             <LmInputRhf
-              onChange={(evt) => {
-                setParams({
-                  query: evt.nativeEvent.text,
-                });
-                func(evt.nativeEvent.text);
-                // mutate(evt.nativeEvent.text);
+              width="100%"
+              borderColor="#eee"
+              onChange={async (evt) => {
+                await func(evt.nativeEvent.text);
               }}
               control={control}
-              placeholder="Search..."
-              aria-label="Enter your search"
-              name="query"
+              placeholder="Search products and categories"
+              aria-label="Search products and categories"
+              name="deep_search"
             />
           </Form>
         )}
       </LmFormRhfProvider>
-      <XStack gap="$3" alignItems="center">
-        <HeaderSortComponent />
-        <Text className="flex-1 text-center font-bold">0 products</Text>
-        <HeaderFilterComponent />
-      </XStack>
-    </YStack>
+    </XStack>
   );
 }

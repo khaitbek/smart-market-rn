@@ -54,7 +54,7 @@ const config = createTamagui({
       stiffness: 60,
     },
   }),
-  defaultTheme: "primary",
+  defaultTheme: "light",
 
   shouldAddPrefersColorThemes: true,
 
@@ -70,7 +70,10 @@ const config = createTamagui({
     primary: {
       background: "#FFF",
       color: "#000",
+      darkBg: "#E7EAEE",
       strongBg: "#F4F5F8",
+      strongText: "#44475C",
+      border: "#E8EAEE",
     },
     sky: {
       background: "#095AE3",

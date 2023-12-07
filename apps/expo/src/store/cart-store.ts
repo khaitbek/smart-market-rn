@@ -4,38 +4,76 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { Product } from "~/types/product";
 
-interface CartStoreDef {
-  products: {
-    id: number;
-    count: number;
-  }[];
-  addToCart: (id: Product["id"]) => void;
-  removeFromCart: (id: Product["id"]) => void;
+interface AddToCartProps {
+  id: Product["id"];
+  seller: Product["seller"];
+}
+export interface CartStoreDef {
+  productIds: Product["id"][];
+  products: Record<
+    Product["seller"]["id"],
+    {
+      id: number;
+      count: number;
+      sellerName: Product["seller"]["name"];
+    }[]
+  >;
+  addToCart: ({ id, seller }: AddToCartProps) => void;
+  removeFromCart: ({ id, seller }: AddToCartProps) => void;
   clear: () => void;
 }
 
 export const useCartStore = create(
   persist<CartStoreDef>(
     (set) => ({
-      addToCart: (id) =>
-        set((state) => ({
-          products: [
-            ...state.products,
+      productIds: [],
+      addToCart: ({ id, seller }) =>
+        set((state) => {
+          console.log({
+            id,
+            seller,
+          });
+          const { products } = state;
+          const copyProducts = {
+            ...products,
+          };
+          const sellerCartProducts = copyProducts[seller.id] ?? [];
+          copyProducts[seller.id] = [
+            ...sellerCartProducts,
             {
               id,
               count: 0,
+              sellerName: seller.name,
             },
-          ],
-        })),
+          ];
+          return {
+            products: {
+              ...copyProducts,
+            },
+            productIds: [...state.productIds, id],
+          };
+        }),
       clear: () =>
         set(() => ({
-          products: [],
+          products: {},
+          productIds: [],
         })),
       products: [],
-      removeFromCart: (id) =>
-        set((state) => ({
-          products: state.products.filter((p) => p.id !== id),
-        })),
+      removeFromCart: ({ id, seller }) =>
+        set((state) => {
+          const copyProducts = {
+            ...state.products,
+          };
+          const mapKeyToFilter = copyProducts[seller.id] ?? [];
+          copyProducts[seller.id] = mapKeyToFilter.filter((p) => p.id !== id);
+          // mapKeyToFilter = copyProducts[seller.id]?.filter(p => p.id !== id)
+          return {
+            products: {
+              ...copyProducts,
+            },
+            productIds: state.productIds.filter((i) => i !== id),
+          };
+        }),
     }),
     {
       name: "cart-storage",

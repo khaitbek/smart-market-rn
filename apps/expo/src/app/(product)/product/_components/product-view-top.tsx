@@ -1,7 +1,9 @@
 import { Path, Svg } from "react-native-svg";
-import { useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
+import Share from "expo-sharing";
 import { Button, XStack } from "tamagui";
 
+import { navigationContainerRef } from "~/app/(primary)/_layout";
 import { Back } from "~/components/ui/back";
 
 export function ProductViewTop() {
@@ -21,17 +23,7 @@ export function ProductViewTop() {
         color="blue"
       />
       <XStack>
-        <Button
-          backgroundColor="transparent"
-          icon={
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M18.175 22c-.783 0-1.454-.28-2.012-.837a2.744 2.744 0 01-.688-2.863L7.9 13.9c-.25.283-.558.512-.925.688a2.586 2.586 0 01-1.125.262c-.783 0-1.454-.28-2.012-.838A2.744 2.744 0 013 12c0-.8.28-1.475.837-2.025A2.765 2.765 0 015.85 9.15c.383 0 .75.075 1.1.225.35.15.667.367.95.65l7.575-4.35a1.742 1.742 0 01-.112-.4 2.59 2.59 0 01-.038-.425c0-.8.28-1.475.838-2.025A2.765 2.765 0 0118.175 2c.8 0 1.475.275 2.025.825.55.55.825 1.225.825 2.025 0 .783-.275 1.454-.825 2.013-.55.558-1.225.837-2.025.837-.383 0-.754-.063-1.113-.188a2.135 2.135 0 01-.912-.612l-7.575 4.2a4.619 4.619 0 01.125.9c0 .117-.012.242-.037.375a6.869 6.869 0 01-.088.4l7.575 4.3c.25-.233.542-.42.875-.563a2.918 2.918 0 011.15-.212c.8 0 1.475.275 2.025.825.55.55.825 1.225.825 2.025 0 .783-.275 1.454-.825 2.013-.55.558-1.225.837-2.025.837z"
-                fill="#095AE3"
-              />
-            </Svg>
-          }
-        ></Button>
+        <ShareButton />
         <Button
           onPress={() => push("/")}
           backgroundColor="transparent"
@@ -45,6 +37,7 @@ export function ProductViewTop() {
           }
         ></Button>
         <Button
+          onPress={() => navigationContainerRef.navigate("Cart" as never)}
           backgroundColor="transparent"
           icon={
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -63,5 +56,28 @@ export function ProductViewTop() {
         ></Button>
       </XStack>
     </XStack>
+  );
+}
+
+function ShareButton() {
+  const pathname = usePathname();
+  async function handleShare() {
+    await Share.shareAsync(pathname, {
+      dialogTitle: "Share product",
+    });
+  }
+  return (
+    <Button
+      onPress={() => handleShare()}
+      backgroundColor="transparent"
+      icon={
+        <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M18.175 22c-.783 0-1.454-.28-2.012-.837a2.744 2.744 0 01-.688-2.863L7.9 13.9c-.25.283-.558.512-.925.688a2.586 2.586 0 01-1.125.262c-.783 0-1.454-.28-2.012-.838A2.744 2.744 0 013 12c0-.8.28-1.475.837-2.025A2.765 2.765 0 015.85 9.15c.383 0 .75.075 1.1.225.35.15.667.367.95.65l7.575-4.35a1.742 1.742 0 01-.112-.4 2.59 2.59 0 01-.038-.425c0-.8.28-1.475.838-2.025A2.765 2.765 0 0118.175 2c.8 0 1.475.275 2.025.825.55.55.825 1.225.825 2.025 0 .783-.275 1.454-.825 2.013-.55.558-1.225.837-2.025.837-.383 0-.754-.063-1.113-.188a2.135 2.135 0 01-.912-.612l-7.575 4.2a4.619 4.619 0 01.125.9c0 .117-.012.242-.037.375a6.869 6.869 0 01-.088.4l7.575 4.3c.25-.233.542-.42.875-.563a2.918 2.918 0 011.15-.212c.8 0 1.475.275 2.025.825.55.55.825 1.225.825 2.025 0 .783-.275 1.454-.825 2.013-.55.558-1.225.837-2.025.837z"
+            fill="#095AE3"
+          />
+        </Svg>
+      }
+    ></Button>
   );
 }

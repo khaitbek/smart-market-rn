@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { Suspense, useCallback } from "react";
+import ErrorBoundary from "react-native-error-boundary";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -30,29 +31,31 @@ const RootLayout = () => {
   }, [fontsLoaded]);
   if (!fontsLoaded) return null;
   return (
-    <RQProvider>
-      <TamaguiProvider config={config}>
-        <Suspense fallback={<Text>Loading...</Text>}>
-          <Theme name="primary">
-            <ToastProvider>
-              <MySafeAreaView>
-                <Stack
-                  screenOptions={{
-                    contentStyle: {
-                      backgroundColor: "#fff",
-                      flex: 1,
-                    },
+    <ErrorBoundary>
+      <RQProvider>
+        <TamaguiProvider config={config}>
+          <Suspense fallback={<Text>Loading...</Text>}>
+            <Theme name="primary" forceClassName>
+              <ToastProvider>
+                <MySafeAreaView>
+                  <Stack
+                    screenOptions={{
+                      contentStyle: {
+                        flex: 1,
+                        backgroundColor: "$background",
+                      },
 
-                    title: "Smart market",
-                    headerShown: false,
-                  }}
-                />
-              </MySafeAreaView>
-            </ToastProvider>
-          </Theme>
-        </Suspense>
-      </TamaguiProvider>
-    </RQProvider>
+                      title: "Smart market",
+                      headerShown: false,
+                    }}
+                  />
+                </MySafeAreaView>
+              </ToastProvider>
+            </Theme>
+          </Suspense>
+        </TamaguiProvider>
+      </RQProvider>
+    </ErrorBoundary>
   );
 };
 
