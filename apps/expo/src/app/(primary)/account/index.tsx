@@ -1,14 +1,17 @@
 import React from "react";
 import { Link } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import type { TextProps, XStackProps } from "tamagui";
 import { ScrollView, Stack, Text, View, XStack, YStack } from "tamagui";
 
 import { AccountPageIcons } from "~/components/ui/icons";
 import { ModeToggle } from "~/components/ui/mode-toggle";
-import { useAuthStore } from "~/store/auth-store";
+import { useAuth } from "~/context/auth-context";
 
 const AccountPage = () => {
-  const { signOut } = useAuthStore();
+  const queryClient = useQueryClient();
+  // const { signOut } = useAuthStore();
+  const { logout } = useAuth();
   return (
     <Stack paddingVertical={4} className="h-full">
       <ScrollView>
@@ -165,7 +168,12 @@ const AccountPage = () => {
             <ModeToggle />
           </AccountGroup>
           <AccountGroup
-            onPress={() => signOut()}
+            onPress={async () => {
+              await logout?.();
+              await queryClient.invalidateQueries({
+                queryKey: ["session"],
+              });
+            }}
             focusable
             label="Log out"
             leftIcon={AccountPageIcons.LOGOUT({})}

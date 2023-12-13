@@ -4,8 +4,8 @@ import { H2, Paragraph, View, YStack } from "tamagui";
 import Logo from "../ui/logo";
 
 interface ActionLayoutProps {
-  title: string;
-  subtitle: string;
+  title: string | undefined;
+  subtitle: string | undefined;
   children: ReactNode;
 }
 

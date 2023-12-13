@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import axios from "axios";
 
-import { useAuthStore } from "~/store/auth-store";
-import type { Locale } from "~/store/lang-store";
+import type { Locale } from "~/lang/index";
 import type {
   FavoriteProducts,
   Product,
@@ -11,7 +10,11 @@ import type {
   SingleProduct,
   SingleProductDetails,
 } from "~/types/product";
+import type { GoogleUser, LoginPayload } from "~/types/user";
 
+export const baseApiClient = axios.create({
+  baseURL: "https://api.kh.smart-market.uz",
+});
 export const publicApiClientV3 = axios.create({
   baseURL: "https://api.kh.smart-market.uz/api/v3",
 });
@@ -24,7 +27,12 @@ export const publicApiClientV1 = axios.create({
 export const uploadsApiClient = axios.create({
   baseURL: "https://api.cabinet.smart-market.uz/uploads",
 });
-
+export async function loginHandler({ password, username }: LoginPayload) {
+  return await baseApiClient.post("/auth/login", {
+    password,
+    username,
+  });
+}
 export async function getUserInfo(token: string) {
   if (!token) return;
   try {
@@ -36,11 +44,10 @@ export async function getUserInfo(token: string) {
         },
       },
     );
-    const user = (await response.data) as object;
-    useAuthStore.setState({
-      authorized: true,
+    const user = (await response.data) as GoogleUser;
+    return {
       user,
-    });
+    };
   } catch (error) {
     return {
       error,
@@ -115,7 +122,7 @@ export async function getCheapestProducts(
 
 interface GetProductsByCategoryProps {
   category_id: number;
-  lang?: "en" | "khmer";
+  lang?: Locale;
   page?: number;
   page_size?: number;
   sorting?: string;
@@ -196,7 +203,7 @@ export async function getCategories(lang: Locale) {
 
 interface GetCatalogProps {
   code?: number;
-  lang: "en" | "khmer";
+  lang: Locale;
 }
 
 interface GetSingleCatalogProps extends GetCatalogProps {

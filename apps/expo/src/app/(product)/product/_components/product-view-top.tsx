@@ -1,10 +1,13 @@
+import Share from "react-native-share";
 import { Path, Svg } from "react-native-svg";
-import { usePathname, useRouter } from "expo-router";
-import Share from "expo-sharing";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
 import { Button, XStack } from "tamagui";
 
-import { navigationContainerRef } from "~/app/(primary)/_layout";
+import { navigationContainerRef } from "~/components/routing/navigation-container";
 import { Back } from "~/components/ui/back";
+import type { SingleProduct } from "~/types/product";
+import { getSingleProduct } from "~/utils/api-utils";
 
 export function ProductViewTop() {
   const { push } = useRouter();
@@ -37,7 +40,12 @@ export function ProductViewTop() {
           }
         ></Button>
         <Button
-          onPress={() => navigationContainerRef.navigate("Cart" as never)}
+          onPress={() => {
+            if (navigationContainerRef.isReady()) {
+              navigationContainerRef.navigate("Cart" as never);
+              push("/");
+            }
+          }}
           backgroundColor="transparent"
           icon={
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -60,11 +68,21 @@ export function ProductViewTop() {
 }
 
 function ShareButton() {
-  const pathname = usePathname();
+  const { id } = useLocalSearchParams();
+  const { data: product } = useQuery<SingleProduct>({
+    queryKey: ["product", id],
+    queryFn: async () => await getSingleProduct({ product_id: Number(id) }),
+  });
   async function handleShare() {
-    await Share.shareAsync(pathname, {
-      dialogTitle: "Share product",
-    });
+    try {
+      await Share.open({
+        title: "Share via",
+        url: `https://kh.smart-market.uz/product-detail/${product?.data.id}`,
+        message: `${product?.data.name}`,
+      });
+    } catch (error) {
+      /* empty */
+    }
   }
   return (
     <Button

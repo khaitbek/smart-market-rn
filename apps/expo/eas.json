@@ -26,6 +26,18 @@
     },
     "production": {
       "extends": "base"
+    },
+    "devclient": {
+      "extends": "base",
+      "releaseChannel": "default",
+      "distribution": "internal",
+      "developmentClient": true,
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {

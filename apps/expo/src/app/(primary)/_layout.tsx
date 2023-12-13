@@ -2,6 +2,7 @@ import React, { lazy } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNavigationContainerRef } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { useQuery } from "@tanstack/react-query";
 import { H2, Image, XStack } from "tamagui";
 
 import { NavigationContainerProvider } from "~/components/routing/navigation-container";
@@ -14,7 +15,10 @@ import {
   FavoritesPageTabIcon,
   MainPageTabIcon,
 } from "~/components/ui/icons";
-import { useAuthStore } from "~/store/auth-store";
+import { useAuth } from "~/context/auth-context";
+import { UseAuthUser } from "~/hooks/use-auth-user";
+import { GoogleUser, Root } from "~/types/user";
+import { createImgUrl } from "~/utils/image";
 import Home from ".";
 import Login from "../(secondary)/login";
 import Welcome from "../(secondary)/welcome";
@@ -40,8 +44,12 @@ export const Stack = createStackNavigator();
 // }
 
 const RootLayout = () => {
-  const { authorized } = useAuthStore();
-  if (!authorized) {
+  const { getCredentials } = useAuth();
+  const { data } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => await getCredentials?.(),
+  });
+  if (!data?.session) {
     return (
       <NavigationContainerProvider>
         <Stack.Navigator>
@@ -81,6 +89,7 @@ const RootLayout = () => {
             // headerShown: false,
           }}
           name="Home"
+          // component={Home}
           component={Home}
         />
         <Tab.Screen
@@ -126,30 +135,7 @@ const RootLayout = () => {
         <Tab.Screen
           options={{
             header() {
-              const user = useAuthStore.getState().user as GoogleUser;
-              return (
-                <XStack
-                  alignItems="center"
-                  backgroundColor="$background"
-                  gap="$3"
-                  paddingVertical={8}
-                  paddingHorizontal={16}
-                >
-                  <Image
-                    source={{
-                      uri: user.picture,
-                      width: 40,
-                      height: 40,
-                      cache: "force-cache",
-                    }}
-                    alt={user.name}
-                    style={{
-                      borderRadius: 100,
-                    }}
-                  />
-                  <H2>{user.name}</H2>
-                </XStack>
-              );
+              return <ProfileTop />;
             },
             tabBarIcon({ focused }) {
               const fillColor = focused ? "blue" : "#AFB6C0";
@@ -165,3 +151,55 @@ const RootLayout = () => {
 };
 
 export default RootLayout;
+
+function ProfileTop() {
+  const { provider, ...props } = UseAuthUser();
+  let user;
+  if (provider === "credentials") {
+    user = (props.user as Root).user;
+
+    return (
+      <XStack
+        alignItems="center"
+        backgroundColor="$background"
+        gap="$3"
+        paddingVertical={8}
+        paddingHorizontal={16}
+      >
+        {!!user.photo && (
+          <ProfileImg alt={user.fullName} url={createImgUrl(user.photo)} />
+        )}
+        <H2>{user.postName}</H2>
+      </XStack>
+    );
+  }
+  user = props.user as GoogleUser;
+  return (
+    <XStack
+      alignItems="center"
+      backgroundColor="$background"
+      gap="$3"
+      paddingVertical={8}
+      paddingHorizontal={16}
+    >
+      <ProfileImg alt={user.name} url={user.picture} />
+      <H2>{user.name}</H2>
+    </XStack>
+  );
+}
+function ProfileImg({ url, alt }: { url: string; alt: string }) {
+  return (
+    <Image
+      source={{
+        uri: url,
+        width: 40,
+        height: 40,
+        cache: "force-cache",
+      }}
+      alt={alt}
+      style={{
+        borderRadius: 100,
+      }}
+    />
+  );
+}

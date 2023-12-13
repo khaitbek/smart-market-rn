@@ -1,7 +1,7 @@
 import type { ExpoConfig } from "@expo/config";
 
 const defineConfig = (): ExpoConfig => ({
-  name: "com.smartmarket.app",
+  name: "Smart Market",
   slug: "expo",
   scheme: "com.smartmarket.app",
   version: "1.0.0",
@@ -43,7 +43,12 @@ const defineConfig = (): ExpoConfig => ({
     tsconfigPaths: true,
     typedRoutes: true,
   },
-  plugins: ["expo-router", "./expo-plugins/with-modify-gradle.js"],
+  plugins: [
+    "expo-router",
+    "./expo-plugins/with-modify-gradle.js",
+    ["expo-community-flipper"], // first
+    ["react-native-flipper-performance-plugin"],
+  ],
 });
 
 export default defineConfig;

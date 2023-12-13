@@ -1,4 +1,5 @@
-import { LmInputRhf, LmInputRhfProps } from "@tamagui-extras/form";
+import type { LmInputRhfProps } from "@tamagui-extras/form";
+import { LmInputRhf } from "@tamagui-extras/form";
 import { cva } from "class-variance-authority";
 
 export const inputStyles = cva(["font-semibold", "border", "rounded"], {
@@ -32,6 +33,7 @@ export const inputStyles = cva(["font-semibold", "border", "rounded"], {
 export function CustomInput(props: LmInputRhfProps) {
   return (
     <LmInputRhf
+      autoCapitalize="none"
       className={inputStyles({})}
       focusStyle={{
         borderColor: "blue",

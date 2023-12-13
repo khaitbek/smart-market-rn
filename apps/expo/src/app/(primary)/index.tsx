@@ -1,6 +1,7 @@
 import { ScrollView, YStack } from "tamagui";
 
 import { MainPageCategories } from "~/components/routing/main-page-categories";
+import { MainPageAsaxiyBanner } from "~/components/ui/banner";
 import { CheapestProducts } from "~/components/ui/cheapest-products";
 import { Container } from "~/components/ui/container";
 import { LatestProducts } from "~/components/ui/latest-products";
@@ -13,6 +14,7 @@ const Home = () => {
       <MyStack>
         <Container>
           <YStack gap="$8">
+            <MainPageAsaxiyBanner />
             <MainPageCategories />
             <CheapestProducts />
             <PopularProducts />

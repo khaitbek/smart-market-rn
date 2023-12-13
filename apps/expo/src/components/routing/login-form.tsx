@@ -1,16 +1,18 @@
 import { useEffect } from "react";
 import { makeRedirectUri } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
+import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import { LmFormRhfProvider } from "@tamagui-extras/form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Separator, Spinner, Text, YStack } from "tamagui";
 import { z } from "zod";
 
-import { useAuthStore } from "~/store/auth-store";
-import { getUserInfo } from "~/utils/api-utils";
-import { cn } from "~/utils/cn";
-import { CustomInput, inputStyles } from "../ui/custom-input";
+import { useAuth } from "~/context/auth-context";
+import type { Root } from "~/types/user";
+import { getUserInfo, loginHandler } from "~/utils/api-utils";
+import { useToast } from "../native-cn/toast-context";
+import { CustomInput } from "../ui/custom-input";
 
 const loginSchema = z.object({
   username: z.string(),
@@ -21,19 +23,34 @@ const loginSchema = z.object({
 interface LoginFields extends z.infer<typeof loginSchema> {}
 WebBrowser.maybeCompleteAuthSession();
 export function LoginForm() {
+  const queryClient = useQueryClient();
+  const { login } = useAuth();
+  const { toast } = useToast();
   const {
     mutate: handleLogin,
     isLoading,
     isSuccess,
   } = useMutation({
     mutationKey: ["login"],
-    // eslint-disable-next-line @typescript-eslint/require-await
+
     mutationFn: async (data: LoginFields) => {
-      useAuthStore.setState({
-        user: {
-          ...data,
-        },
-        authorized: true,
+      const loginRes = await loginHandler(data);
+      return loginRes.data as Root;
+    },
+    onError() {
+      toast("Username or password is incorrect", "destructive");
+    },
+    async onSuccess(data) {
+      await login?.({
+        provider: "credentials",
+        token: data.token,
+        session: data,
+      });
+
+      toast("Successfully authorized!", "success", 10000, "bottom", true);
+      // navigationContainerRef.navigate("Home" as never);
+      await queryClient.invalidateQueries({
+        queryKey: ["session"],
       });
     },
   });
@@ -47,18 +64,30 @@ export function LoginForm() {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     handleEffect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);
   async function handleEffect() {
-    const { authorized } = useAuthStore.getState();
-    if (authorized) return;
     if (response?.type === "success") {
-      await getUserInfo(response.authentication?.accessToken ?? "");
+      const loginResponse = await getUserInfo(
+        response.authentication?.accessToken ?? "",
+      );
+      await login?.({
+        provider: "google",
+        session: loginResponse?.user,
+        token: response.authentication?.accessToken,
+      });
+      toast("Successfully authorized!", "success", 10000, "bottom", true);
+      await queryClient.invalidateQueries({
+        queryKey: ["session"],
+      });
+      // navigationContainerRef.navigate("Home" as never);
     }
   }
   return (
     <LmFormRhfProvider<LoginFields>>
       {({ control, handleSubmit, reset }) => (
         <YStack gap="$3">
+          <Text>{JSON.stringify(SecureStore.getItemAsync("session"))}</Text>
           <CustomInput
             fullWidth
             name="username"
@@ -69,9 +98,8 @@ export function LoginForm() {
           />
           <CustomInput
             fullWidth
-            className={cn(inputStyles())}
             name="password"
-            placeholder="Password"
+            isPassword
             // @ts-expect-error @tamagui/extras-form needs to fix this
             control={control}
             required

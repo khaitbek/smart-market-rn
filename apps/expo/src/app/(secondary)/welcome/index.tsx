@@ -4,14 +4,16 @@ import { Button, XStack } from "tamagui";
 
 import { ActionLayout } from "~/components/layout/action";
 import { MyStack } from "~/components/ui/my-stack";
+import type { Locale } from "~/lang";
 import { useLangStore } from "~/store/lang-store";
 
 export default function Welcome() {
+  const { messages } = useLangStore();
   return (
     <MyStack>
       <ActionLayout
-        title="Choose language"
-        subtitle="Choose your preferred language"
+        title={messages?.interface.choose_lang}
+        subtitle={messages?.interface.choose_preferred_lang}
       >
         <XStack gap="$4">
           <LanguageSelect />
@@ -25,7 +27,7 @@ function LanguageSelect() {
   const navigation = useNavigation();
   const navigationState = useRootNavigationState();
   const { setLang } = useLangStore();
-  function setLangAndRedirectToLogin(lang: "en" | "khmer") {
+  function setLangAndRedirectToLogin(lang: Locale) {
     setLang(lang);
     if (!navigationState?.key) return;
     navigation.navigate("Login" as never);
@@ -49,7 +51,7 @@ function LanguageSelect() {
           lineHeight: 16.0,
           fontSize: 16.0,
         }}
-        onPress={() => setLangAndRedirectToLogin("khmer")}
+        onPress={() => setLangAndRedirectToLogin("kh")}
       >
         Khmer
       </Button>

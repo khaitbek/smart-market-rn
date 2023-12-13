@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, Image, Paragraph, XStack, YStack } from "tamagui";
 
+import { useLangStore } from "~/store/lang-store";
 import { getCategories } from "~/utils/api-utils";
 import { createImgUrl } from "~/utils/image";
 import { CategoryLoader } from "../loaders/category";
 import { SectionTitle } from "../ui/section-title";
 
 export function MainPageCategories() {
+  const { messages, lang } = useLangStore();
   const { data, isLoading } = useQuery({
-    queryFn: async () => await getCategories("en"),
+    queryFn: async () => await getCategories(lang),
     queryKey: ["category"],
   });
   if (!data) {
@@ -17,7 +19,7 @@ export function MainPageCategories() {
   return (
     <>
       <YStack gap="$2">
-        <SectionTitle>Main categories</SectionTitle>
+        <SectionTitle>{messages?.home.main_categories}</SectionTitle>
         <XStack flexWrap="wrap">
           {isLoading && <CategoryLoader />}
           {data?.slice(0, 6).map((category) => (
